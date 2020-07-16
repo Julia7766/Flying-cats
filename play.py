@@ -1,34 +1,38 @@
 import curses
 from GameObject import GameObject
-from GameObject import AssetsStore
-from GameObject import SceneObject
+from GameObject import AssetStore
+from GameObject import Scene
 
 
-def init(Scene):
+def init(scene_to_init):
     score = 0
-    cat_object = GameObject('asset_cat','object_cat')
-    roof_object = GameObject('asset_roof','object_roof')
-    Scene.add_object(cat_object)
-    Scene.add_object(roof_object)
+    cat = GameObject('cat_asset','cat')
+    roof = GameObject('roof_asset','roof')
+    scene_to_init.add_object(cat)
+    scene_to_init.add_object(roof)
+
+    return clear_screen()
+
+
+def clear_screen():
     screen = curses.initscr()
     screen.keypad(1)
-    screen.addstr(0,0, 'Hello')
+    screen.addstr(0, 0, 'Hello')
     screen.refresh()
     curses.napms(3000)
-    curses.endwin()
-    print("Window ended.")
+    return screen
+    #curses.endwin()
+
 
 def receive_user_input():
     player = curses.KEY_ENTER
-
-
 
 def game_over():
     pass
 
 def loop():
     pass
-#user_input = receive_user_input()
+#user_input = receive_user_input
 #controller_step(user_input)
 #view_step
 # clear screen
@@ -39,26 +43,35 @@ def loop():
     # respond to keypress event
     # stop the game if the cat hits the roof
 
+
 def controller_step():
-    event = receive_user_input()
     pass
 
-def view_step():
-    asset = AssetsStore()
-    object = SceneObject()
-    object.get_object()
-    for object in AssetsStore.get_asset():
-        object.addstr()
+def view_step(scene_to_draw, asset_store, canvas):
+    objects_to_draw = scene_to_draw.get_objects()
+    for item in objects_to_draw:
+        asset_name = item.get_asset_name()
+        asset = asset_store.get_asset(asset_name)
+        draw_in_curses(canvas, asset, item)
+
+def draw_in_curses(canvas, asset, item):
+    item_pos = item.get_position()
+    for rownum, line in enumerate(asset):
+        canvas.addstr(item_pos[1] + rownum, item_pos[0], line)
+        canvas.refresh()
+
+
+
 
 
 def main():
-    main_scene = SceneObject()
-    init(main_scene)
+    main_scene = Scene()
+    asset_store = AssetStore()
+    canvas = init(main_scene)
+    view_step(main_scene,asset_store, canvas)
+    while not game_over:
+        loop()
 
-
-
-while not game_over:
- loop()
 
 if __name__ == '__main__':
     main()
